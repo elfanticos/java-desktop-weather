@@ -15,44 +15,18 @@ import java.util.Scanner;
 // display this data to the user
 public class WeatherApp {
     // fetch weather data for given location
+    @SuppressWarnings("unchecked")
     public static JSONObject getWeatherData(String locationName) {
-        // get location coordinates using the geolocation API
-        JSONArray locationData = getLocationData(locationName);
-
-        // extract latitude and longitude data
-        JSONObject location = (JSONObject) locationData.get(0);
-        double latitude = (double) location.get("latitude");
-        double longitude = (double) location.get("longitude");
-
-        // build API request URL with location coordinates
-        String urlString = "https://api.open-meteo.com/v1/forecast?" +
-                "latitude=" + latitude + "&longitude=" + longitude +
-                "&hourly=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=America%2FLos_Angeles";
         try {
-            // call api and get response
-            HttpURLConnection conn = fetchApiResponse(urlString);
+            // get location coordinates using the geolocation API
+            JSONArray locationData = getLocationData(locationName);
 
-            // check for response status
-            // 200 - means that the connection was a success
-            if (conn.getResponseCode() != 200) {
-                System.out.println("Error: Could not connect to API");
-                return null;
-            }
+            // extract latitude and longitude data
+            JSONObject location = (JSONObject) locationData.get(0);
+            double latitude = (double) location.get("latitude");
+            double longitude = (double) location.get("longitude");
 
-            // store resulting json data
-            StringBuilder resultJson = new StringBuilder();
-            Scanner scanner = new Scanner(conn.getInputStream());
-
-            while (scanner.hasNextLine()) {
-                // read and store into the string builder
-                resultJson.append(scanner.nextLine());
-            }
-
-            // close scanner
-            scanner.close();
-
-            // close url connection
-            conn.disconnect();
+            StringBuilder resultJson = getLocationDataByCoordinates(latitude, longitude);
 
             // parse through our data
             JSONParser parser = new JSONParser();
@@ -71,8 +45,8 @@ public class WeatherApp {
             double temperature = (double) temperatureData.get(index);
 
             // get weather code
-            JSONArray weathercode = (JSONArray) hourly.get("weather_code");
-            String weatherCondition = convertWeatherCode((long) weathercode.get(index));
+            JSONArray weatherCode = (JSONArray) hourly.get("weather_code");
+            String weatherCondition = convertWeatherCode((long) weatherCode.get(index));
 
             // get humidity
             JSONArray relativeHumidity = (JSONArray) hourly.get("relative_humidity_2m");
@@ -112,7 +86,7 @@ public class WeatherApp {
 
             // check response status
             // 200 means successful connection
-            if (conn.getResponseCode() != 200) {
+            if (conn == null || (conn.getResponseCode() != 200)) {
                 System.out.println("Error: Could not connect to the API");
                 return null;
             }
@@ -143,6 +117,44 @@ public class WeatherApp {
             e.printStackTrace();
         }
 
+        return null;
+    }
+
+    private static StringBuilder getLocationDataByCoordinates(double latitude, double longitude) {
+        try {
+            // build API request URL with location coordinates
+            String urlString = "https://api.open-meteo.com/v1/forecast?" +
+                    "latitude=" + latitude + "&longitude=" + longitude +
+                    "&hourly=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=America%2FLos_Angeles";
+
+            // call api and get response
+            HttpURLConnection conn = fetchApiResponse(urlString);
+
+            // check for response status
+            // 200 - means that the connection was a success
+            if (conn == null || (conn.getResponseCode() != 200)) {
+                System.out.println("Error: Could not connect to API");
+                return null;
+            }
+
+            // store resulting json data
+            StringBuilder resultJson = new StringBuilder();
+            Scanner scanner = new Scanner(conn.getInputStream());
+
+            while (scanner.hasNextLine()) {
+                // read and store into the string builder
+                resultJson.append(scanner.nextLine());
+            }
+
+            // close scanner
+            scanner.close();
+
+            // close url connection
+            conn.disconnect();
+            return resultJson;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
