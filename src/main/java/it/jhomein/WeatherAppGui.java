@@ -1,5 +1,6 @@
 package it.jhomein;
 
+import it.jhomein.components.SearchTextField;
 import it.jhomein.utils.RoundedBorder;
 import org.json.simple.JSONObject;
 
@@ -38,17 +39,11 @@ public class WeatherAppGui extends JFrame {
 
     private void addGuiComponents() {
         // search field
-        JTextField searchTextField = new JTextField();
-
-        // set the location and size of our component
-        searchTextField.setBounds(15, 15, 351, 45);
-
-        // change the font style and size
-        searchTextField.setFont(new Font("Dialog", Font.PLAIN, 24));
+        JTextField searchTextField = new SearchTextField();
         add(searchTextField);
 
         // weather image
-        JLabel weatherConditionImage = new JLabel(loadImage("src/main/java/it/jhomein/assets/cloudy.png"));
+        JLabel weatherConditionImage = new JLabel(getIcon("cloudy"));
         weatherConditionImage.setBounds(0, 125, 450, 217);
         add(weatherConditionImage);
 
@@ -69,7 +64,7 @@ public class WeatherAppGui extends JFrame {
         add(weatherConditionDesc);
 
         // humidity image
-        JLabel humidityImage = new JLabel(loadImage("src/main/java/it/jhomein/assets/humidity.png"));
+        JLabel humidityImage = new JLabel(getIcon("humidity"));
         humidityImage.setBounds(15, 500, 74, 66);
         add(humidityImage);
 
@@ -80,7 +75,7 @@ public class WeatherAppGui extends JFrame {
         add(humidityText);
 
         // windspeed image
-        JLabel windspeedImage = new JLabel(loadImage("src/main/java/it/jhomein/assets/windspeed.png"));
+        JLabel windspeedImage = new JLabel(getIcon("windspeed"));
         windspeedImage.setBounds(220, 500, 74, 66);
         add(windspeedImage);
 
@@ -91,7 +86,7 @@ public class WeatherAppGui extends JFrame {
         add(windspeedText);
 
         // search button
-        JButton searchButton = new JButton(loadImage("src/main/java/it/jhomein/assets/search.png"));
+        JButton searchButton = new JButton(getIcon("search"));
 
         // change the cursor to a hand cursor when hovering over this button
         searchButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -119,16 +114,16 @@ public class WeatherAppGui extends JFrame {
                 // depending on the condition, we will update the weather image that corresponds with the condition
                 switch (weatherCondition) {
                     case "Clear":
-                        weatherConditionImage.setIcon(loadImage("src/main/java/it/jhomein/assets/clear.png"));
+                        weatherConditionImage.setIcon(getIcon("clear"));
                         break;
                     case "Cloudy":
-                        weatherConditionImage.setIcon(loadImage("src/main/java/it/jhomein/assets/cloudy.png"));
+                        weatherConditionImage.setIcon(getIcon("cloudy"));
                         break;
                     case "Rain":
-                        weatherConditionImage.setIcon(loadImage("src/main/java/it/jhomein/assets/rain.png"));
+                        weatherConditionImage.setIcon(getIcon("rain"));
                         break;
                     case "Snow":
-                        weatherConditionImage.setIcon(loadImage("src/main/java/it/jhomein/assets/snow.png"));
+                        weatherConditionImage.setIcon(getIcon("snow"));
                         break;
                 }
                 // update temperature text
@@ -146,6 +141,11 @@ public class WeatherAppGui extends JFrame {
         });
 
         add(searchButton);
+    }
+
+    private ImageIcon getIcon(String nameIcon) {
+        String resourcePath = "src/main/java/it/jhomein/assets/"+nameIcon+".png";
+        return  loadImage(resourcePath);
     }
 
     private ImageIcon loadImage(String resourcePath) {
